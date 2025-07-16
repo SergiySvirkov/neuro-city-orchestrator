@@ -1,0 +1,30 @@
+# Dockerfile.sumo
+# This Dockerfile builds a custom image with Python and SUMO installed.
+
+# Use a stable Python base image
+FROM python:3.9-slim
+
+# Set environment variables to prevent interactive prompts during installation
+ENV DEBIAN_FRONTEND=noninteractive
+ENV SUMO_HOME=/usr/share/sumo
+
+# Install system dependencies, including sudo and SUMO
+RUN apt-get update && \
+    apt-get install -y sudo software-properties-common && \
+    add-apt-repository ppa:sumo/stable && \
+    apt-get update && \
+    apt-get install -y sumo sumo-tools sumo-doc && \
+    rm -rf /var/lib/apt/lists/*
+
+# Copy the application source code into the container
+COPY ./src /app/src
+COPY ./requirements.txt /app/
+
+# Set the working directory
+WORKDIR /app
+
+# Install Python dependencies
+RUN pip install --no-cache-dir -r requirements.txt
+
+# This command will be executed when the container starts
+CMD ["python", "src/data_ingestion/sumo_data_producer.py"]
