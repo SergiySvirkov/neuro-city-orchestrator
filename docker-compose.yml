@@ -1,5 +1,5 @@
 # docker-compose.yml
-# Defines the services needed to run a single-node Kafka cluster locally.
+# Defines the services for a local development environment including Kafka and Flink.
 # To start the services, run: docker-compose up -d
 # To stop the services, run: docker-compose down
 
@@ -23,17 +23,30 @@ services:
     depends_on:
       - zookeeper
     ports:
-      # Exposes Kafka to the host machine (your computer)
       - "9092:9092"
     environment:
       KAFKA_BROKER_ID: 1
       KAFKA_ZOOKEEPER_CONNECT: 'zookeeper:2181'
-      # This listener is for communication from your Python script running on the host
       KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092
-      # The listener below is for internal communication between Kafka components if needed
-      # KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092,PLAINTEXT_INTERNAL://kafka:29092
-      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT #,PLAINTEXT_INTERNAL:PLAINTEXT
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
-      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
-      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
-      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true" # Allows Flink to create the output topic
+
+  jobmanager:
+    image: apache/flink:1.15.2-scala_2.12-java11
+    container_name: jobmanager
+    hostname: jobmanager
+    ports:
+      - "8081:8081" # Flink Web UI
+    command: jobmanager
+    environment:
+      - JOB_MANAGER_RPC_ADDRESS=jobmanager
+
+  taskmanager:
+    image: apache/flink:1.15.2-scala_2.12-java11
+    container_name: taskmanager
+    hostname: taskmanager
+    depends_on:
+      - jobmanager
+    command: taskmanager
+    environment:
+      - JOB_MANAGER_RPC_ADDRESS=jobmanager
