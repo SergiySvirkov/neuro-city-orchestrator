@@ -1,36 +1,95 @@
 Neuro-Orchestrator for Smart City & Autonomous Transport
-Project Overview
 
-This repository contains the source code and documentation for the "Neuro-Orchestrator for Smart City & Autonomous Transport" project. This is a global, integrated B2B platform designed to serve as the centralized "brain" for managing all aspects of a future-forward smart city. The platform will orchestrate autonomous transport (cars, drone taxis, delivery bots), robotic services (automated restaurants, infrastructure maintenance), and much more.
+Current Status: MVP 2 - Closed-Loop Control System Complete
 
-The core of the system is a multi-layered architecture of AI agents that aggregates and analyzes real-time data from a vast network of sources, including IoT sensors, drones, and satellites. A key innovation is the integration of Brain-Computer Interfaces (BCI) to create a seamless and optimized interaction between humans and the urban ecosystem.
-Goal
+This repository contains the source code for the "Neuro-Orchestrator" project, a B2B platform designed to serve as the centralized "brain" for a future smart city. The project currently exists as a fully functional, end-to-end prototype that simulates urban traffic, analyzes it in real-time, uses an AI agent crew to make decisions, and acts upon those decisions to mitigate congestion within the simulation.
+Project Architecture (MVP 2)
 
-The primary goal is to develop a self-organizing, adaptive, and resilient urban ecosystem. The platform aims not just to automate city management but to create a system that can intelligently respond to dynamic changes, predict future needs, and optimize operations with minimal human intervention. It is designed with a human-centric approach, using BCI and VR/AR to augment human capabilities rather than replace them.
-Key Technologies
+The current system operates on a sophisticated, real-time data pipeline:
 
-This project will leverage a combination of cutting-edge technologies:
+    Data Generation: The sumo_runner service runs a microscopic traffic simulation (SUMO), generating realistic data for vehicle positions and traffic light states.
 
-    Internet of Things (IoT): For city-wide sensor data collection.
+    Data Streaming: This raw data is continuously streamed into an smart_city_events topic in Apache Kafka.
 
-    AI & Machine Learning:
+    Real-Time Analytics: An Apache Flink job consumes the raw data, aggregates it into 1-minute windows, and calculates traffic density for predefined city districts. High-density alerts are published to a new Kafka topic, traffic_density_alerts.
 
-        Large Language Models (LLMs): e.g., Mistral AI, for the central "City Orchestrator".
+    AI-Powered Decision Making: The city_orchestrator service listens for these alerts. Upon detecting an incident, it triggers a CrewAI team of AI agents.
 
-        Agentic AI Frameworks: e.g., CrewAI, for specialized agent teams.
+    Closed-Loop Control: The AI crew analyzes the incident, formulates a mitigation plan, and uses a custom tool (via SUMO's Traci API) to directly modify the simulation, for example, by extending a traffic light's green phase.
 
-        Predictive Analytics & Optimization Algorithms.
+    Live Visualization: A dashboard service (FastAPI + WebSockets) consumes data from both Kafka topics and pushes it to a web interface, providing a live map-based view of traffic and AI actions.
 
-    Big Data Processing:
+How to Run the Prototype
 
-        Real-time Stream Processing: Apache Flink, Spark Streaming.
+To run the complete simulation and dashboard on your local machine:
 
-        Distributed Databases.
+Prerequisites:
 
-    Brain-Computer Interface (BCI): For advanced human-system interaction.
+    Docker and Docker Compose
 
-    VR/AR: For immersive simulation, training, and maintenance overlays.
+    Python 3.9+
 
-    Cloud Computing: For scalability, processing power, and reliability.
+    An API key from Google AI Studio for the Gemini model
 
-    Cybersecurity: To protect critical city infrastructure and data.
+Steps:
+
+    Clone the repository:
+
+    git clone <your-repository-url>
+    cd neuro-city-orchestrator
+
+    Set up environment variables:
+
+        Copy the .env.example file to a new file named .env.
+
+        Open .env and add your GEMINI_API_KEY.
+
+    Install Python dependencies:
+
+    pip install -r requirements.txt
+
+    Build and start all services:
+
+        This command will build the custom Docker images and start all services (SUMO, Kafka, Flink, Dashboard) in the background.
+
+    docker-compose build
+    docker-compose up -d
+
+    Start the processing and logic scripts:
+
+        Open two separate terminal windows.
+
+        In the first terminal, start the Flink analytics job:
+
+        python src/data_processing/realtime_aggregator.py
+
+        In the second terminal, start the City Orchestrator:
+
+        python src/core_orchestrator/city_orchestrator_v0_3.py
+
+    View the dashboard:
+
+        Open your web browser and navigate to http://localhost:8000. You will see the live simulation map.
+
+Future Roadmap
+
+This functional prototype serves as the foundation for several advanced development phases:
+Phase 4: Advanced Agent Functionality
+
+    Proactive Route Planning: Develop agents that can proactively reroute vehicles around predicted congestion zones before they form.
+
+    Energy Management: Integrate agents to manage a network of simulated EV charging stations, optimizing charging schedules based on vehicle demand and grid load.
+
+    Advanced LLM Integration: Upgrade the core "City Orchestrator" to use a more powerful LLM (e.g., Mistral) for complex, multi-variable strategic planning beyond simple incident response.
+
+Phase 5: Immersive Interface Integration (Proof of Concept)
+
+    VR/AR Simulation: Develop a client using a game engine (Unity/Unreal) that connects to the simulation data, allowing an operator to "fly through" the virtual city and visualize data overlays in an immersive 3D environment.
+
+    BCI for Enhanced Operations: Create a proof-of-concept application using a consumer-grade BCI headset (e.g., Muse). The app will monitor an operator's cognitive state (e.g., focus) and automatically highlight critical incidents on the dashboard when high focus is detected, demonstrating a basic "NeuroFlow" interaction.
+
+Phase 6: Pilot Deployment
+
+    Hardware Integration: Partner with a technology park, university campus, or logistics hub to deploy a small number of real IoT sensors (traffic cameras, environmental sensors).
+
+    Real-World Data Fusion: Adapt the data ingestion pipeline to process and fuse data from both the real-world sensors and the ongoing simulation, allowing for robust testing and validation in a controlled, real-world environment.
