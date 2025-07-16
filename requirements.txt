@@ -9,6 +9,7 @@ kafka-python
 
 # For data processing and storage
 pandas
-
-# For future PostgreSQL/TimescaleDB integration
 psycopg2-binary
+
+# For real-time stream processing with Flink
+apache-flink==1.15.2
