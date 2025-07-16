@@ -1,0 +1,110 @@
+# --- General ---
+# Environment variables
+# Use a .env.example file to show required variables
+.env
+.env.*
+*.env
+
+# Log files
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# --- Python ---
+# Byte-compiled / optimized / C extensions
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Distribution / packaging
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Virtual environments
+env/
+venv/
+.venv/
+
+# Mypy cache
+.mypy_cache/
+
+# Pytest cache
+.pytest_cache/
+
+# --- Data & Models ---
+# Never commit large data files or trained models to Git.
+# Use Git LFS (Large File Storage) for models if necessary, or store them in cloud storage.
+data/
+*.csv
+*.json
+*.xml
+*.parquet
+*.feather
+
+models/
+*.h5
+*.hdf5
+*.pth
+*.pt
+*.onnx
+*.pkl
+*.pickle
+*.joblib
+*.model
+*.tflite
+
+# --- IDE & Editor specific ---
+# VSCode
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+
+# JetBrains (PyCharm, IntelliJ)
+.idea/
+
+# Sublime Text
+*.sublime-project
+*.sublime-workspace
+
+# Atom
+.atom/
+
+# Other
+*.swp
+*.swo
+
+# --- Jupyter Notebook ---
+.ipynb_checkpoints
+# If you want to only commit the source of notebooks, not their outputs,
+# consider using a pre-commit hook with `nbstripout`.
+
+# --- OS-specific ---
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
