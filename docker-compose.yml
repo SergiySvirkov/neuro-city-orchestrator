@@ -1,5 +1,5 @@
 # docker-compose.yml
-# Defines services for Kafka, Flink, and the new SUMO data producer.
+# Exposes the Traci port (8813) from the SUMO container to the host.
 
 version: '3.8'
 
@@ -22,7 +22,6 @@ services:
     environment:
       KAFKA_BROKER_ID: 1
       KAFKA_ZOOKEEPER_CONNECT: 'zookeeper:2181'
-      # IMPORTANT: We need to add a listener for the SUMO container
       KAFKA_LISTENERS: PLAINTEXT://kafka:29092,EXTERNAL://localhost:9092
       KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:29092,EXTERNAL://localhost:9092
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,EXTERNAL:PLAINTEXT
@@ -55,5 +54,8 @@ services:
     container_name: sumo_runner
     depends_on:
       - kafka
+    # Expose the Traci port to the host machine
+    ports:
+      - "8813:8813"
     # This ensures the container keeps running if the script fails, for debugging
     restart: on-failure
