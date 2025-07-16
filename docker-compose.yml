@@ -1,5 +1,5 @@
 # docker-compose.yml
-# Exposes the Traci port (8813) from the SUMO container to the host.
+# Adds the new dashboard service to the stack.
 
 version: '3.8'
 
@@ -54,8 +54,19 @@ services:
     container_name: sumo_runner
     depends_on:
       - kafka
-    # Expose the Traci port to the host machine
     ports:
       - "8813:8813"
-    # This ensures the container keeps running if the script fails, for debugging
     restart: on-failure
+
+  dashboard:
+    build:
+      context: .
+      dockerfile: Dockerfile.sumo # We can reuse the same image as it has Python and our libs
+    container_name: dashboard
+    depends_on:
+      - kafka
+    ports:
+      - "8000:8000" # Expose web server port
+    command: uvicorn src.dashboard.dashboard_backend:app --host 0.0.0.0 --port 8000 --reload
+    volumes:
+      - ./src:/app/src # Mount source code to allow for hot-reloading
